@@ -4,24 +4,27 @@ import javafx.scene.layout.*;
 
 public class Controller {
     public GridPane grid;
+    public Boolean aiMove = true;
+    private Ai ai;
 
     public void initialize() {
-        int numCols = 100 ;
-        int numRows = 100;
+        int numCols = 25;
+        int numRows = 25;
+        ai = new Ai();
 
-        for (int i = 0 ; i < numCols ; i++) {
+        for (int i = 0; i < numCols; i++) {
             ColumnConstraints colConstraints = new ColumnConstraints();
             colConstraints.setHgrow(Priority.SOMETIMES);
             grid.getColumnConstraints().add(colConstraints);
         }
 
-        for (int i = 0 ; i < numRows ; i++) {
+        for (int i = 0; i < numRows; i++) {
             RowConstraints rowConstraints = new RowConstraints();
             rowConstraints.setVgrow(Priority.SOMETIMES);
             grid.getRowConstraints().add(rowConstraints);
         }
 
-        for (int i = 0 ; i < numCols ; i++) {
+        for (int i = 0; i < numCols; i++) {
             for (int j = 0; j < numRows; j++) {
                 addPane(i, j);
             }
@@ -32,10 +35,14 @@ public class Controller {
         Pane pane = new Pane();
         pane.setStyle("-fx-border-style: solid");
 
-        pane.setStyle("-fx-background-color: white;"+"-fx-border-color: black");
-        pane.setOnMouseEntered(e -> {
-            System.out.printf("Mouse enetered cell [%d, %d]%n", colIndex, rowIndex);
-        });
+        pane.setStyle("-fx-background-color: white;" + "-fx-border-color: black");
+
+        pane.setOnMouseClicked(event ->
+                {
+                    ai.moveEnemy(rowIndex, colIndex);
+                    ai.moveToMax();
+                }
+        );
         grid.add(pane, colIndex, rowIndex);
     }
 }

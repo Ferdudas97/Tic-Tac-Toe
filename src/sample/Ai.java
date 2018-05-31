@@ -5,6 +5,7 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class Ai {
     private String[][] currentTable;
@@ -27,48 +28,90 @@ public class Ai {
 
     }
 
+
     public int makePotentialMovesTable(int x, int y) {
         int max = Integer.MIN_VALUE;
         tableWithPotentialMoves[x][y]++;
         max = tableWithPotentialMoves[x][y];
-        int aiSymbols[]=new int[4];
+        int aiSymbols[]=new int[8];
+        boolean blocked[]=new boolean[8];
+        Arrays.fill(blocked, false);
+        Arrays.fill(aiSymbols,1);
+        for (int k = 1; k < 5; k++) {
+            if (  x + k < size && y + k < size && !blocked[0]) {
+                if (currentTable[x+k][y+k].equals(humanSymbol.toString())) blocked[0]=true;
+                if (currentTable[x+k][y+k].equals(aiSymbol.toString())) aiSymbols[0]++;
+
+
+            }
+            if (x + k < size && y - k >= 0 &&  !blocked[0]) {
+                if (currentTable[x+k][y-k].equals(humanSymbol.toString())) blocked[1]=true;
+                if (currentTable[x+k][y-k].equals(aiSymbol.toString())) aiSymbols[1]++;
+            }
+            if (x + k < size &&  !blocked[2]) {
+                if (currentTable[x+k][y].equals(humanSymbol.toString())) blocked[2]=true;
+                if (currentTable[x+k][y].equals(aiSymbol.toString())) aiSymbols[2]++;
+            }
+            if (x - k >= 0 && y - k >= 0 &&  !blocked[3] ) {
+                if (currentTable[x-k][y-k].equals(humanSymbol.toString())) blocked[3]=true;
+                if (currentTable[x-k][y-k].equals(aiSymbol.toString())) aiSymbols[3]++;
+
+            }
+            if (x - k >= 0 &&  !blocked[4] ) {
+                if (currentTable[x-k][y].equals(humanSymbol.toString())) blocked[4]=true;
+                if (currentTable[x-k][y].equals(aiSymbol.toString())) aiSymbols[4]++;
+            }
+            if (y - k >= 0 &&  !blocked[5] ) {
+                if (currentTable[x][y-k].equals(humanSymbol.toString())) blocked[5]=true;
+                if (currentTable[x][y-k].equals(aiSymbol.toString())) aiSymbols[5]++;
+
+            }
+            if (y + k < size &&  !blocked[6]) {
+                if (currentTable[x][y+k].equals(humanSymbol.toString())) blocked[6]=true;
+                if (currentTable[x][y+k].equals(aiSymbol.toString())) aiSymbols[6]++;
+            }
+            if (x - k >= 0 && y + k < size && !blocked[7]) {
+                if (currentTable[x-k][y+k].equals(humanSymbol.toString())) blocked[7]=true;
+                if (currentTable[x-k][y+k].equals(aiSymbol.toString())) aiSymbols[7]++;
+            }
+        }
 
         for (int i = 1; i < 5; i++) {
             if (x + i < size && y + i < size && !currentTable[x + i][y + i].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x + i][y + i]++;
+                tableWithPotentialMoves[x + i][y + i]+=aiSymbols[3]+5-i;
                 if (tableWithPotentialMoves[x + i][y + i] > max) max = tableWithPotentialMoves[x + i][y + i];
             }
             if (x + i < size && y - i >= 0 && !currentTable[x + i][y - i].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x + i][y - i]++;
+                tableWithPotentialMoves[x + i][y - i]+=aiSymbols[7]-i+5;
                 if (tableWithPotentialMoves[x + i][y - i] > max) max = tableWithPotentialMoves[x + i][y - i];
 
             }
             if (x + i < size && !currentTable[x + i][y].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x + i][y]++;
+                tableWithPotentialMoves[x + i][y]+=aiSymbols[4]-i+5;
                 if (tableWithPotentialMoves[x + i][y] > max) max = tableWithPotentialMoves[x + i][y];
 
             }
             if (x - i >= 0 && y - i >= 0 && !currentTable[x - i][y - i].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x - i][y - i]++;
+                tableWithPotentialMoves[x - i][y - i]+=aiSymbols[0]-i+5;
                 if (tableWithPotentialMoves[x - i][y - i] > max) max = tableWithPotentialMoves[x - i][y - i];
 
             }
             if (x - i >= 0 && !currentTable[x - i][y].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x - i][y]++;
+                tableWithPotentialMoves[x - i][y]+=aiSymbols[2]-i+5;
                 if (tableWithPotentialMoves[x - i][y] > max) max = tableWithPotentialMoves[x - i][y];
 
             }
             if (y - i >= 0 && !currentTable[x][y - i].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x][y - i]++;
+                tableWithPotentialMoves[x][y - i]+=aiSymbols[6]-i+5;
                 if (tableWithPotentialMoves[x][y - i] > max) max = tableWithPotentialMoves[x][y - i];
 
             }
             if (y + i < size && !currentTable[x][y + i].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x][y + i]++;
+                tableWithPotentialMoves[x][y + i]+=aiSymbols[5]-i+5;
                 if (tableWithPotentialMoves[x][y + i] > max) max = tableWithPotentialMoves[x][y + i];
             }
             if (x - i >= 0 && y + i < size && !currentTable[x - i][y + i].equals(humanSymbol.toString())) {
-                tableWithPotentialMoves[x - i][y + i]++;
+                tableWithPotentialMoves[x - i][y + i]+=aiSymbols[1]-i+5;
                 if (tableWithPotentialMoves[x - i][y + i] > max) max = tableWithPotentialMoves[x - i][y + i];
 
             }
@@ -79,39 +122,79 @@ public class Ai {
     }
 
     public void deletePotentialOfAiMoves(int x, int y) {
+        int aiSymbols[]=new int[8];
+        boolean blocked[]=new boolean[8];
+        Arrays.fill(blocked, false);
+        Arrays.fill(aiSymbols,1);
+        for (int k = 1; k < 5; k++) {
+            if (  x + k < size && y + k < size && !blocked[0]) {
+                if (currentTable[x+k][y+k].equals(humanSymbol.toString())) blocked[0]=true;
+                if (currentTable[x+k][y+k].equals(aiSymbol.toString())) aiSymbols[0]++;
 
+
+            }
+            if (x + k < size && y - k >= 0 &&  !blocked[0]) {
+                if (currentTable[x+k][y-k].equals(humanSymbol.toString())) blocked[1]=true;
+                if (currentTable[x+k][y-k].equals(aiSymbol.toString())) aiSymbols[1]++;
+            }
+            if (x + k < size &&  !blocked[2]) {
+                if (currentTable[x+k][y].equals(humanSymbol.toString())) blocked[2]=true;
+                if (currentTable[x+k][y].equals(aiSymbol.toString())) aiSymbols[2]++;
+            }
+            if (x - k >= 0 && y - k >= 0 &&  !blocked[3] ) {
+                if (currentTable[x-k][y-k].equals(humanSymbol.toString())) blocked[3]=true;
+                if (currentTable[x-k][y-k].equals(aiSymbol.toString())) aiSymbols[3]++;
+
+            }
+            if (x - k >= 0 &&  !blocked[4] ) {
+                if (currentTable[x-k][y].equals(humanSymbol.toString())) blocked[4]=true;
+                if (currentTable[x-k][y].equals(aiSymbol.toString())) aiSymbols[4]++;
+            }
+            if (y - k >= 0 &&  !blocked[5] ) {
+                if (currentTable[x][y-k].equals(humanSymbol.toString())) blocked[5]=true;
+                if (currentTable[x][y-k].equals(aiSymbol.toString())) aiSymbols[5]++;
+
+            }
+            if (y + k < size &&  !blocked[6]) {
+                if (currentTable[x][y+k].equals(humanSymbol.toString())) blocked[6]=true;
+                if (currentTable[x][y+k].equals(aiSymbol.toString())) aiSymbols[6]++;
+            }
+            if (x - k >= 0 && y + k < size && !blocked[7]) {
+                if (currentTable[x-k][y+k].equals(humanSymbol.toString())) blocked[7]=true;
+                if (currentTable[x-k][y+k].equals(aiSymbol.toString())) aiSymbols[7]++;
+            }
+        }
         tableWithPotentialMoves[x][y]--;
 
         for (int i = 0; i < 5; i++) {
             if (i > 0 && x + i < size && y + i < size && (!currentTable[x + i][y + i].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x + i][y + i]--;
+                tableWithPotentialMoves[x + i][y + i]-=aiSymbols[3]+5-i;
             }
             if (i > 0 && x + i < size && y - i >= 0 && (!currentTable[x + i][y - i].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x + i][y - i]--;
+                tableWithPotentialMoves[x + i][y - i]-=aiSymbols[7]-i+5;
 
             }
             if (i > 0 && x + i < size && (!currentTable[x + i][y].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x + i][y]--;
+                tableWithPotentialMoves[x + i][y]-=aiSymbols[4]-i+5;
 
             }
             if (i > 0 && x - i >= 0 && y - i >= 0 && (!currentTable[x - i][y - i].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x - i][y - i]--;
+                tableWithPotentialMoves[x - i][y - i]-=aiSymbols[0]-i+5;
 
             }
             if (i > 0 && x - i >= 0 && (!currentTable[x - i][y].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x - i][y]--;
-
+                tableWithPotentialMoves[x - i][y]-=aiSymbols[2]-i+5;
             }
             if (i > 0 && y - i >= 0 && (!currentTable[x][y - i].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x][y - i]--;
+                tableWithPotentialMoves[x][y - i]-=aiSymbols[6]-i+5;
 
             }
             if (i > 0 && y + i < size && (!currentTable[x][y + i].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x][y + i]--;
+                tableWithPotentialMoves[x][y + i]-=aiSymbols[5]-i+5;
 
             }
             if (i > 0 && x - i >= 0 && y + i < size && (!currentTable[x - i][y + i].equals(humanSymbol.toString()))) {
-                tableWithPotentialMoves[x - i][y + i]--;
+                tableWithPotentialMoves[x - i][y + i]-=aiSymbols[1]-i+5;
 
             }
         }
@@ -122,6 +205,7 @@ public class Ai {
         System.out.println("Plansza");
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
+                if (currentTable[i][j].isEmpty())System.out.print('_');
                 System.out.print(currentTable[i][j] + "|");
 
             }
@@ -147,6 +231,7 @@ public class Ai {
         int max = Integer.MIN_VALUE;
         Pair<Integer, Integer> maxPair = new Pair<>(0, 0);
         int currValue = 0;
+        List<Pair<Integer, Integer>> list=new ArrayList<>();
 
         for (Pair<Integer, Integer> pair : listWithMaxPairs) {
             currValue = makePotentialMovesTable(pair.getKey(), pair.getValue());
@@ -156,11 +241,15 @@ public class Ai {
                 max = currValue;
 
                 maxPair = pair;
+                list.clear();
             }
+            if (currValue==max) list.add(pair);
             deletePotentialOfAiMoves(pair.getKey(), pair.getValue());
 
 
         }
+        Random random= new Random();
+        //maxPair=list.get(Math.abs(random.nextInt()%list.size()));
         moveMe(maxPair.getKey(), maxPair.getValue());
     }
 
@@ -171,7 +260,7 @@ public class Ai {
         int y = size / 2;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (currentTable[i][j].isEmpty() && tableWithPotentialMoves[i][j] > 0 && tableWithPotentialMoves[i][j] > max) {
+                if (currentTable[i][j].isEmpty() &&  tableWithPotentialMoves[i][j]>0 && tableWithPotentialMoves[i][j] > max) {
                     max = tableWithPotentialMoves[i][j];
                     listWithMaxValues.clear();
 
@@ -195,12 +284,13 @@ public class Ai {
             printTableOfPotentials();
         }
 
+
     }
 
     public void moveEnemy(int x, int y) {
         if (currentTable[x][y].isEmpty()) {
             currentTable[x][y] = humanSymbol.toString();
-            deletePotentialOfAiMoves(x,y);
+            makePotentialMovesTable(x,y);
         }
     }
 
