@@ -1,15 +1,18 @@
 package sample;
 
 import javafx.scene.layout.*;
+import javafx.util.Pair;
 
 public class Controller {
     public GridPane grid;
     public Boolean aiMove = true;
     private Ai ai;
+    private Pane[][] panes;
 
     public void initialize() {
-        int numCols = 25;
-        int numRows = 25;
+        int numCols = 3;
+        int numRows = 3;
+        panes=new Pane[numCols][numRows];
         ai = new Ai();
 
         for (int i = 0; i < numCols; i++) {
@@ -36,13 +39,17 @@ public class Controller {
         pane.setStyle("-fx-border-style: solid");
 
         pane.setStyle("-fx-background-color: white;" + "-fx-border-color: black");
-
+        panes[rowIndex][colIndex]=pane;
         pane.setOnMouseClicked(event ->
                 {
                     ai.moveEnemy(rowIndex, colIndex);
-                    ai.moveToMax();
+                       pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
+                    Pair<Integer,Integer>pair=ai.moveToMax();
+                    panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
+
                 }
         );
         grid.add(pane, colIndex, rowIndex);
     }
+
 }
