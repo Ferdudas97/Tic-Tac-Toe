@@ -1,13 +1,17 @@
 package sample;
 
+import javafx.scene.control.Alert;
 import javafx.scene.layout.*;
 import javafx.util.Pair;
+
+import java.util.Optional;
 
 public class Controller {
     public GridPane grid;
     public Boolean aiMove = true;
     private Ai ai;
     private Pane[][] panes;
+    private Optional<Controller> someoneWon;
 
     public void initialize() {
         int numCols = 3;
@@ -45,11 +49,20 @@ public class Controller {
                     ai.moveEnemy(rowIndex, colIndex);
                        pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
                     Pair<Integer,Integer>pair=ai.moveToMax();
+
                     panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
 
                 }
         );
         grid.add(pane, colIndex, rowIndex);
+    }
+    private  void ifSomeOneWon(String who){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText(who +" is the winner");
+
+        alert.showAndWait();
     }
 
 }
