@@ -14,8 +14,8 @@ public class Controller {
     private Optional<Controller> someoneWon;
 
     public void initialize() {
-        int numCols = 3;
-        int numRows = 3;
+        int numCols = 25;
+        int numRows = 25;
         panes=new Pane[numCols][numRows];
         ai = new Ai();
 
@@ -46,11 +46,14 @@ public class Controller {
         panes[rowIndex][colIndex]=pane;
         pane.setOnMouseClicked(event ->
                 {
-                    ai.moveEnemy(rowIndex, colIndex);
-                       pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
-                    Pair<Integer,Integer>pair=ai.moveToMax();
+                    new Thread(() -> {
+                       ai.moveEnemy(rowIndex, colIndex);
+                        pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
+                        Pair<Integer,Integer>pair=ai.moveToMax();
 
-                    panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
+                        panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
+
+                    }).start();
 
                 }
         );
