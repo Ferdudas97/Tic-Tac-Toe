@@ -12,10 +12,11 @@ public class Controller {
     private Ai ai;
     private Pane[][] panes;
     private Optional<Controller> someoneWon;
+    private boolean humanTurn=true;
 
     public void initialize() {
-        int numCols = 3;
-        int numRows = 3;
+        int numCols = 25;
+        int numRows = 25;
         panes=new Pane[numCols][numRows];
         ai = new Ai();
 
@@ -46,14 +47,19 @@ public class Controller {
         panes[rowIndex][colIndex]=pane;
         pane.setOnMouseClicked(event ->
                 {
-                    new Thread(() -> {
-                       ai.moveEnemy(rowIndex, colIndex);
-                        pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
-                        Pair<Integer,Integer>pair=ai.moveToMax();
+                    if (humanTurn && ai.getCurrentTable()[rowIndex][colIndex].isEmpty()){
 
-                        panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
+                        new Thread(() -> {
+                            ai.moveEnemy(rowIndex, colIndex);
+                            pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
+                            humanTurn=!humanTurn;
+                            Pair<Integer,Integer>pair=ai.moveToMax();
 
-                    }).start();
+                            panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
+                            humanTurn=!humanTurn;
+                        }).start();
+                    }
+
 
                 }
         );
