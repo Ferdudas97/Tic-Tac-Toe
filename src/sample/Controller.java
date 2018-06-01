@@ -14,8 +14,8 @@ public class Controller {
     private Optional<Controller> someoneWon;
 
     public void initialize() {
-        int numCols = 25;
-        int numRows = 25;
+        int numCols = 3;
+        int numRows = 3;
         panes=new Pane[numCols][numRows];
         ai = new Ai();
 

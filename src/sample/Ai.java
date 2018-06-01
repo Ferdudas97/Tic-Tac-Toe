@@ -10,7 +10,7 @@ public class Ai {
     private int[][] tableWithPotentialMoves;
     private Character humanSymbol;
     private Character aiSymbol;
-    private int size = 25;
+    private int size = 3;
     private Pair<Integer, Integer> previousMove;
 
     public Ai() {
@@ -217,16 +217,21 @@ public class Ai {
 
             currValue= Arrays.stream(howManySymbols(aiSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
             curr2= Arrays.stream(howManySymbols(humanSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
-            System.out.println("human "+curr2);
+
             someoneWon=checkWin();
+
             if (curr2>=currValue) currValue=curr2;
+            currentTable[pair.getKey()][pair.getValue()]=aiSymbol.toString();
+            currValue+=moveToMax(0);
+            currentTable[pair.getKey()][pair.getValue()]="";
+
             if (someoneWon!=null){
                 if (someoneWon.equals(aiSymbol.toString())) currValue=9999;
                 else currValue=8888;
                 System.out.println("wygrana !!! "+ currValue);
             }
             if (currValue > max ) {
-
+                System.out.println("max ==" +currValue);
                 max = currValue;
                 maxPair = pair;
              //   list.clear();
@@ -251,11 +256,18 @@ public class Ai {
         List<Pair<Integer, Integer>> list = new ArrayList<>();
 
         for (Pair<Integer, Integer> pair : listWithMaxPairs) {
-            currValue = makePotentialMovesTable(aiSymbol, pair.getKey(), pair.getValue());
-            //curr2=makePotentialMovesTable(humanSymbol,pair.getKey(),pair.getValue());
+
+            currValue= Arrays.stream(howManySymbols(aiSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
+            curr2= Arrays.stream(howManySymbols(humanSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
             if (curr2>currValue)currValue=curr2;
-            if (level<2)  currValue+=moveToMax(level+1);
-            list = findMax();
+
+            if (level<4)  {
+                currentTable[pair.getKey()][pair.getValue()]= level%2==0? humanSymbol.toString():aiSymbol.toString();
+                currValue+=moveToMax(level+1);
+                currentTable[pair.getKey()][pair.getValue()]="";
+
+            }
+
 
             if (currValue > max && currentTable[pair.getKey()][pair.getValue()].isEmpty()) {
 
@@ -266,7 +278,6 @@ public class Ai {
             }
 
             if (currValue==max) list.add(pair);
-            deletePotentialOfMoves(aiSymbol,pair.getKey(), pair.getValue());
 
 
         }
@@ -291,7 +302,7 @@ public class Ai {
             }
         }
         //    previousMove=new Pair<>(x,y);
-        if (listWithMaxValues.size() == 0) listWithMaxValues.add(new Pair<>(x, y));
+   //     if (listWithMaxValues.size() == 0) listWithMaxValues.add(new Pair<>(x, y));
 
         return listWithMaxValues;
     }
