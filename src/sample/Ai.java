@@ -219,7 +219,7 @@ public class Ai {
         Pair<Integer, Integer> maxPair = new Pair<>(0, 0);
         int currValue = 0;
         int curr2=0;
-        Character someoneWon;
+        Winner someoneWon;
         List<Pair<Integer, Integer>> list = new ArrayList<>();
         tableBefore=tableWithPotentialMoves.clone();
         for (Pair<Integer, Integer> pair : listWithMaxPairs) {
@@ -231,22 +231,23 @@ public class Ai {
 
             if (curr2>=currValue) currValue=curr2;
             currentTable[pair.getKey()][pair.getValue()]=aiSymbol.toString();
-            //currValue+=moveToMax(0);
+            currValue+=moveToMax(0);
             currentTable[pair.getKey()][pair.getValue()]="";
 
             if (someoneWon!=null){
-                if (someoneWon.equals(aiSymbol.toString())) currValue=9999;
+                if (someoneWon.getSymbol().equals(aiSymbol)) currValue=9999;
                 else currValue=8888;
-                System.out.println("wygrana !!! "+ currValue);
+                pair=new Pair<>(someoneWon.x,someoneWon.y);
+                System.out.println("wygrana !!! "+ someoneWon.getX()+" "+someoneWon.getY());
             }
             if (currValue > max ) {
                 System.out.println("max ==" +currValue);
                 max = currValue;
-                maxPair = pair;
                 list.clear();
             }
 
             if (currValue==max) list.add(pair);
+            if (currValue==9999)break;
             //deletePotentialOfMoves(aiSymbol,pair.getKey(), pair.getValue());
            // tableWithPotentialMoves=tableBefore;
 
@@ -258,35 +259,69 @@ public class Ai {
     }
     public int moveToMax(int level) {
         List<Pair<Integer, Integer>> listWithMaxPairs = findMax();
-        int max = Integer.MIN_VALUE;
+        int max = level%2==0? Integer.MAX_VALUE: Integer.MIN_VALUE;
         Pair<Integer, Integer> maxPair = new Pair<>(0, 0);
         int currValue = 0;
         int curr2=0;
+        Winner someoneWon;
         List<Pair<Integer, Integer>> list = new ArrayList<>();
 
         for (Pair<Integer, Integer> pair : listWithMaxPairs) {
 
-            currValue= Arrays.stream(howManySymbols(aiSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
-            curr2= Arrays.stream(howManySymbols(humanSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
-            if (curr2>currValue)currValue=curr2;
 
-            if (level<4)  {
+
+            someoneWon=checkWin();
+
+
+            if (level%2==0) {
+                currValue = Arrays.stream(howManySymbols(aiSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
+                curr2 = Arrays.stream(howManySymbols(humanSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
+
+                if (curr2 < currValue) currValue = curr2;
                 currentTable[pair.getKey()][pair.getValue()]= level%2==0? humanSymbol.toString():aiSymbol.toString();
-                currValue+=moveToMax(level+1);
+                currValue-=moveToMax(level+1);
                 currentTable[pair.getKey()][pair.getValue()]="";
 
+                if (someoneWon!=null){
+                    if (someoneWon.getSymbol().equals(aiSymbol)) currValue=-8888;
+                    else currValue=9999;
+                    //pair=new Pair<>(someoneWon.x,someoneWon.y);
+                    System.out.println("wygrana !!! "+ someoneWon.getX()+" "+someoneWon.getY());
+                }
+
+                if (currValue < max && currentTable[pair.getKey()][pair.getValue()].isEmpty()) {
+
+                    max = currValue;
+
+                    maxPair = pair;
+                    list.clear();
+                }
+
+                if (currValue == max) list.add(pair);
             }
+            else {
+                currValue = Arrays.stream(howManySymbols(aiSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
+                curr2 = Arrays.stream(howManySymbols(humanSymbol, pair.getKey(), pair.getValue())).max().getAsInt();
+                if (curr2 > currValue) currValue = curr2;
 
+                if (someoneWon!=null){
+                    if (someoneWon.getSymbol().equals(aiSymbol)) currValue=9999;
+                    else currValue=8888;
+                  //  pair=new Pair<>(someoneWon.x,someoneWon.y);
+                    max=currValue;
+                    System.out.println("wygrana !!! "+ someoneWon.getX()+" "+someoneWon.getY());
+                }
+                if (currValue > max && currentTable[pair.getKey()][pair.getValue()].isEmpty()) {
 
-            if (currValue > max && currentTable[pair.getKey()][pair.getValue()].isEmpty()) {
+                    max = currValue;
 
-                max = currValue;
+                    maxPair = pair;
+                    list.clear();
+                }
 
-                maxPair = pair;
-                list.clear();
+                if (currValue == max) list.add(pair);
+
             }
-
-            if (currValue==max) list.add(pair);
 
 
         }
@@ -343,62 +378,94 @@ public class Ai {
         }
     }
 
-    public Character checkWin() {
+    public Winner checkWin() {
         int tab[] = new int[8];
         int tab2[] = new int[8];
+        boolean []aiBlocked= new boolean[8];
+        boolean []humanBlocked= new boolean[8];
+
         Arrays.fill(tab, 0);
         Arrays.fill(tab2, 0);
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
+                if (currentTable[x][y].isEmpty()){
                 Arrays.fill(tab, 0);
                 Arrays.fill(tab2, 0);
+                Arrays.fill(aiBlocked,false);
+                Arrays.fill(humanBlocked,false);
                 for (int k = 1; k < 5; k++) {
-                    if (x + k < size && y + k < size && !currentTable[x + k][y + k].isEmpty()) {
-                        if (currentTable[x + k][y + k].equals(aiSymbol.toString())) tab[0]++;
-                        if (currentTable[x + k][y + k].equals(humanSymbol.toString())) tab2[0]++;
+                    if (x + k < size && y + k < size) {
+                        if (!aiBlocked[0] && currentTable[x + k][y + k].equals(aiSymbol.toString())) tab[0]++;
+                        else aiBlocked[0]=true;
+                        if (!humanBlocked[0] && currentTable[x + k][y + k].equals(humanSymbol.toString())) tab2[0]++;
+                        else humanBlocked[0]=true;
+                    }
+                    if (x - k >= 0 && y - k >= 0 ) {
+                        if (!aiBlocked[1] &&currentTable[x - k][y - k].equals(aiSymbol.toString())) tab[1]++;
+                        else aiBlocked[1]=true;
+
+                        if (!humanBlocked[1] && currentTable[x - k][y - k].equals(humanSymbol.toString())) tab2[1]++;
+                        else humanBlocked[1]=true;
+
 
                     }
-                    if (x + k < size && y - k >= 0 && !currentTable[x + k][y - k].isEmpty()) {
-                        if (currentTable[x + k][y - k].equals(aiSymbol.toString())) tab[1]++;
-                        if (currentTable[x + k][y - k].equals(humanSymbol.toString())) tab2[1]++;
+                    if (x + k < size && y - k >= 0 ) {
+                        if (!aiBlocked[2] &&currentTable[x + k][y - k].equals(aiSymbol.toString())) tab[2]++;
+                        else aiBlocked[2]=true;
+                        if (!humanBlocked[2] && currentTable[x + k][y - k].equals(humanSymbol.toString())) tab2[2]++;
+                        else humanBlocked[2]=true;
 
                     }
-                    if (x + k < size && !currentTable[x + k][y].isEmpty()) {
-                        if (currentTable[x + k][y].equals(aiSymbol.toString())) tab[2]++;
-                        if (currentTable[x + k][y].equals(humanSymbol.toString())) tab2[2]++;
+                    if (x - k >= 0 && y + k < size ) {
+                        if (!aiBlocked[3] &&currentTable[x - k][y + k].equals(aiSymbol.toString())) tab[3]++;
+                        else aiBlocked[3]=true;
+                        if (!humanBlocked[3] && currentTable[x - k][y + k].equals(humanSymbol.toString())) tab2[3]++;
+                        else humanBlocked[3]=true;
 
                     }
-                    if (x - k >= 0 && y - k >= 0 && !currentTable[x - k][y - k].isEmpty()) {
-                        if (currentTable[x - k][y - k].equals(aiSymbol.toString())) tab[3]++;
-                        if (currentTable[x - k][y - k].equals(humanSymbol.toString())) tab2[3]++;
+                    if (x + k < size) {
+                        if (!aiBlocked[4] &&currentTable[x + k][y].equals(aiSymbol.toString())) tab[4]++;
+                        else aiBlocked[4]=true;
+                        if (!humanBlocked[4] && currentTable[x + k][y].equals(humanSymbol.toString())) tab2[4]++;
+                        else humanBlocked[4]=true;
 
                     }
-                    if (x - k >= 0 && !currentTable[x - k][y].isEmpty()) {
-                        if (currentTable[x - k][y].equals(humanSymbol.toString())) tab2[4]++;
 
-                        if (currentTable[x - k][y].equals(aiSymbol.toString())) tab[4]++;
-                    }
-                    if (y - k >= 0 && !currentTable[x][y - k].isEmpty()) {
-                        if (currentTable[x][y - k].equals(aiSymbol.toString())) tab[5]++;
-                        if (currentTable[x][y - k].equals(humanSymbol.toString())) tab2[5]++;
 
-                    }
-                    if (y + k < size && !currentTable[x][y + k].isEmpty()) {
+                    if (x - k >= 0 ) {
+                        if (!humanBlocked[5] && currentTable[x - k][y].equals(humanSymbol.toString())) tab2[5]++;
+                        else humanBlocked[5]=true;
 
-                        if (currentTable[x][y + k].equals(aiSymbol.toString())) tab[6]++;
-                        if (currentTable[x][y + k].equals(humanSymbol.toString())) tab2[6]++;
+                        if (!aiBlocked[5] &&currentTable[x - k][y].equals(aiSymbol.toString())) tab[5]++;
+                        else humanBlocked[5]=true;
 
                     }
-                    if (x - k >= 0 && y + k < size && (!currentTable[x - k][y + k].isEmpty())) {
-                        if (currentTable[x - k][y + k].equals(aiSymbol.toString())) tab[7]++;
-                        if (currentTable[x - k][y + k].equals(humanSymbol.toString())) tab2[7]++;
+                    if (y - k >= 0 ) {
+                        if (!aiBlocked[6] &&currentTable[x][y - k].equals(aiSymbol.toString())) tab[6]++;
+                        else aiBlocked[6]=true;
+                        if (!humanBlocked[6] && currentTable[x][y - k].equals(humanSymbol.toString())) tab2[6]++;
+                        else humanBlocked[6]=true;
 
                     }
+                    if (y + k < size ) {
+
+                        if (!aiBlocked[7] && currentTable[x][y + k].equals(aiSymbol.toString())) tab[7]++;
+                        else aiBlocked[7]=true;
+                        if (!humanBlocked[7] && currentTable[x][y + k].equals(humanSymbol.toString())) tab2[7]++;
+                        else humanBlocked[7]=true;
+
+                    }
+
                 }
                 for (int i = 0; i < 8; i++) {
-                    if (tab[i] >= 4) return aiSymbol;
-                    if (tab2[i] >= 4) return humanSymbol;
+                    if (tab[i] == 5) return new Winner(aiSymbol,x,y);
+                    if (tab2[i] == 5) return new Winner(humanSymbol,x,y);
                 }
+                for (int i = 0; i < 8; i+=2) {
+                    if (tab[i] +tab[i+1] >= 4) return new Winner(aiSymbol,x,y);
+                    if (tab2[i]+tab2[i+1] >= 4) return new Winner(humanSymbol,x,y);
+                }
+            }
             }
         }
         return null;
@@ -406,5 +473,28 @@ public class Ai {
 
     public String[][] getCurrentTable() {
         return currentTable;
+    }
+    private class Winner{
+        private int x;
+        private int y;
+        private Character symbol;
+
+        public Winner(Character symbol,int x,int y) {
+            this.symbol = symbol;
+            this.x=x;
+            this.y=y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public Character getSymbol() {
+            return symbol;
+        }
     }
 }
