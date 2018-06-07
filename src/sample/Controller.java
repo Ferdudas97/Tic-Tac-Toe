@@ -13,12 +13,14 @@ public class Controller {
     private Pane[][] panes;
     private Optional<Controller> someoneWon;
     private boolean humanTurn=true;
+    private Pair<Integer,Integer> firstMove;
 
     public void initialize() {
         int numCols = 25;
         int numRows = 25;
         panes=new Pane[numCols][numRows];
         ai = new Ai();
+       //  firstMove=ai.moveToMax();
 
         for (int i = 0; i < numCols; i++) {
             ColumnConstraints colConstraints = new ColumnConstraints();
@@ -44,6 +46,7 @@ public class Controller {
         pane.setStyle("-fx-border-style: solid");
 
         pane.setStyle("-fx-background-color: white;" + "-fx-border-color: black");
+        //if (rowIndex==firstMove.getKey() && colIndex==firstMove.getValue()) pane.setStyle("-fx-background-color: red;" + "-fx-border-color: black");
         panes[rowIndex][colIndex]=pane;
         pane.setOnMouseClicked(event ->
                 {
