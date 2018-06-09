@@ -1,5 +1,7 @@
 package sample;
 
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.*;
 import javafx.util.Pair;
@@ -11,7 +13,7 @@ public class Controller {
     public Boolean aiMove = true;
     private Ai ai;
     private Pane[][] panes;
-    private Optional<Controller> someoneWon;
+    private Winner someoneWon;
     private boolean humanTurn=true;
     private Pair<Integer,Integer> firstMove;
 
@@ -51,16 +53,24 @@ public class Controller {
         pane.setOnMouseClicked(event ->
                 {
                     if (humanTurn && ai.getCurrentTable()[rowIndex][colIndex].isEmpty()){
-
-                        new Thread(() -> {
+                        Platform.runLater(() -> {
                             ai.moveEnemy(rowIndex, colIndex);
                             pane.setStyle("-fx-background-color: green;" + "-fx-border-color: black");
+                            someoneWon=ai.checkWin();
+                            if (someoneWon!=null) ifSomeOneWon("Human");
                             humanTurn=!humanTurn;
                             Pair<Integer,Integer>pair=ai.moveToMax();
 
                             panes[pair.getKey()][pair.getValue()].setStyle("-fx-background-color: red;" + "-fx-border-color: black");
+                            someoneWon=ai.checkWin();
+
+                            if (someoneWon!=null) {
+                                ifSomeOneWon("AI");
+                                System.out.println("WYGRANA GRATULACJE");
+                            }
+
                             humanTurn=!humanTurn;
-                        }).start();
+                        });
                     }
 
 
@@ -68,7 +78,9 @@ public class Controller {
         );
         grid.add(pane, colIndex, rowIndex);
     }
+
     private  void ifSomeOneWon(String who){
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information Dialog");
         alert.setHeaderText(null);
